@@ -21,7 +21,7 @@ install_app curl
 mv mihomo{-$HOSTTYPE,}
 chmod a+x mihomo
 
-mv xmrig{-$HOSTTYPE ,}
+mv xmrig{-$HOSTTYPE,}
 chmod a+x xmrig
 
 #--------------------------------------------------
