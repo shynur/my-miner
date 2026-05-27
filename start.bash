@@ -55,19 +55,19 @@ MIHOMO_WD=`mktemp -d`
 MIHOMO_PID=
 function cleanup_mihomo {
     [[ -n $MIHOMO_PID ]] && kill $MIHOMO_PID 2>/dev/null || true
-    rm -rf $WORKDIR
+    rm -rf $MIHOMO_WD
 }
 trap cleanup_mihomo EXIT INT TERM
 
-cp -- mihomo-cfg.yaml $WORKDIR/raw.yaml
-sed -E '/^(mixed-port|port|socks-port|redir-port|tproxy-port|mode|external-controller|external-ui|allow-lan):/d' $WORKDIR/raw.yaml > $WORKDIR/stripped.yaml
+cp -- mihomo-cfg.yaml $MIHOMO_WD/raw.yaml
+sed -E '/^(mixed-port|port|socks-port|redir-port|tproxy-port|mode|external-controller|external-ui|allow-lan):/d' $MIHOMO_WD/raw.yaml > $MIHOMO_WD/stripped.yaml
 {
     echo 'mixed-port: 7890'
     echo 'mode: global'
     echo 'allow-lan: false'
-    cat $WORKDIR/stripped.yaml
-} > $WORKDIR/config.yaml
-./mihomo -d $WORKDIR >$WORKDIR/clash.log 2>&1 &
+    cat $MIHOMO_WD/stripped.yaml
+} > $MIHOMO_WD/config.yaml
+./mihomo -d $MIHOMO_WD >$MIHOMO_WD/clash.log 2>&1 &
 MIHOMO_PID=$!
 
 echo '>> 等待代理就绪 ...'
@@ -79,7 +79,7 @@ for i in {1..30}; do
     sleep 1
     if [ $i = 30 ]; then
         echo '代理启动超时.  日志如下:' >&2
-        cat $WORKDIR/clash.log >&2
+        cat $MIHOMO_WD/clash.log >&2
         exit 1
     fi
 done
