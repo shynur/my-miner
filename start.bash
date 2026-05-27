@@ -18,10 +18,10 @@ function install_app {
 
 install_app curl
 
-cp mihomo{-$HOSTTYPE,}
+cp -f mihomo{-$HOSTTYPE,}
 chmod a+x mihomo
 
-cp xmrig{-$HOSTTYPE,}
+cp -f xmrig{-$HOSTTYPE,}
 chmod a+x xmrig
 
 #--------------------------------------------------
