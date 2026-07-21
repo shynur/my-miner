@@ -8,9 +8,16 @@ ExecStart=bash -c 'cd `mktemp`; git clone https://github.com/shynur/my-miner bui
 Restart=always
 RestartSec=10
 
+# Work-conserving background scheduling; deliberately no quota or CPU affinity.
 Nice=19
 CPUSchedulingPolicy=idle
-IOSchedulingClass=3
+CPUWeight=1
+
+IOSchedulingClass=idle
+IOSchedulingPriority=7
+IOWeight=1
+
+OOMScoreAdjust=1000
 
 User=root
 Group=root
