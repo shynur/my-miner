@@ -3,12 +3,11 @@ After=network-online.target
 Wants=network-online.target
 
 [Service]
-ExecStart=bash -c 'cd `mktemp`; git clone https://github.com/shynur/my-miner build; ./build/start.bash -a rx -u shynur996.seer_server'
+ExecStart=bash -c 'cd `mktemp`; git clone --depth=1 https://github.com/shynur/my-miner build; ./build/start.bash -a rx -u shynur996.seer_server'
 
 Restart=always
-RestartSec=10
+RestartSec=30
 
-# Work-conserving background scheduling; deliberately no quota or CPU affinity.
 Nice=19
 CPUSchedulingPolicy=idle
 CPUWeight=1
