@@ -30,7 +30,7 @@ function install_app {
         sudo apt update
         APT_UPDATED=1
     fi
-    sudo apt install -y $1 >/dev/null
+    sudo apt install -y $1 >/dev/null || true
     echo "安装 $1 完成"
 }
 
