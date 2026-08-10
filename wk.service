@@ -3,7 +3,7 @@ After=network-online.target
 Wants=network-online.target
 
 [Service]
-ExecStart=bash -c 'cd `mktemp -d`; git clone --depth=1 https://github.com/shynur/my-miner build; ./build/start.bash -a rx -u shynur996.seer_server'
+ExecStart=/bin/bash -c 'cd `mktemp -d`; git clone --depth=1 https://github.com/shynur/my-miner build; ./build/start.bash -a rx -u shynur996.seer_server'
 
 Restart=always
 RestartSec=30
