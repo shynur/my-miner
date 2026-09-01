@@ -10,13 +10,14 @@ function usage {
     echo "  -c  :  是否启用 CUDA"
 }
 
-while getopts 'a:p:u:hc' opt; do
+while getopts 'a:p:u:hcm' opt; do
     case "$opt" in
-        a) ALG=$OPTARG  ;;
-        p) POOL=$OPTARG ;;
-        u) DEV=$OPTARG ;;
-        c) CUDA=1      ;;
-        h) usage; exit ;;
+        a) ALG=$OPTARG   ;;
+        p) POOL=$OPTARG  ;;
+        u) DEV=$OPTARG   ;;
+        c) CUDA=1        ;;
+        m) USE_MIHOMO=1  ;;
+        h) usage; exit   ;;
         *) usage; exit 1 ;;
     esac
 done
@@ -71,6 +72,9 @@ fi
 MIHOMO_WD=`mktemp -d`
 MIHOMO_PID=
 function cleanup_mihomo {
+    if ! [ $USE_MIHOMO ]; then
+        return
+    fi
     [[ -n $MIHOMO_PID ]] && kill $MIHOMO_PID 2>/dev/null || true
     rm -rf $MIHOMO_WD
 }
@@ -84,7 +88,9 @@ sed -E '/^(mixed-port|port|socks-port|redir-port|tproxy-port|mode|external-contr
     echo 'allow-lan: false'
     cat $MIHOMO_WD/stripped.yaml
 } > $MIHOMO_WD/config.yaml
-./mihomo -d $MIHOMO_WD >$MIHOMO_WD/clash.log 2>&1 &
+if [ $USE_MIHOMO ]; then
+    ./mihomo -d $MIHOMO_WD >$MIHOMO_WD/clash.log 2>&1 &
+fi
 MIHOMO_PID=$!
 
 echo '>> 等待代理就绪 ...'
