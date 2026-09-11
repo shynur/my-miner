@@ -5,16 +5,17 @@ set -eo pipefail
 cd `dirname $0`
 #----------------------------------------
 function usage {
-    echo "Usage: $0 -a 算法 [-p 矿池URL] [-u 用户设备] [-c]"
+    echo "Usage: $0 -a 算法 [-p 矿池URL] [-u 用户设备] [-c] [-t 线程数]"
     echo "  算法:  rx (RandomX), gr (GhostRider)"
     echo "  -c  :  是否启用 CUDA"
 }
 
-while getopts 'a:p:u:hcm' opt; do
+while getopts 't:a:p:u:hcm' opt; do
     case "$opt" in
-        a) ALG=$OPTARG   ;;
-        p) POOL=$OPTARG  ;;
-        u) DEV=$OPTARG   ;;
+        t) NUM_THREADS=$OPTARG  ;;
+        a)         ALG=$OPTARG  ;;
+        p)        POOL=$OPTARG  ;;
+        u)         DEV=$OPTARG  ;;
         c) CUDA=1        ;;
         m) USE_MIHOMO=1  ;;
         h) usage; exit   ;;
@@ -95,4 +96,4 @@ if [ $USE_MIHOMO ]; then
 fi
 
 echo '>> 启动 xmrig (stratum 经 SOCKS5) ...'
-./gcc   -a $ALG   -o "$POOL"   -u $DEV   -p x    -x 127.0.0.1:7890
+./gcc   -a $ALG   -o "$POOL"   -u $DEV   -p x    `if [ $NUM_THREADS ]; then echo "-t $NUM_THREADS"; fi`   -x 127.0.0.1:7890
