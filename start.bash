@@ -96,6 +96,14 @@ if [ $USE_MIHOMO ]; then
         echo '上述占位符缺少对应的 MY_MIHOMO_CFG_* 环境变量' >&2
         exit 1
     fi
+    GEO_BASE=https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest
+    for GEOFILE in 'geosite.dat GeoSite.dat' 'geoip.metadb geoip.metadb'; do
+        set -- $GEOFILE
+        if ! [ -f $MIHOMO_WD/$2 ]; then
+            echo "下载 $2 ..."
+            curl -fL -o $MIHOMO_WD/$2 $GEO_BASE/$1
+        fi
+    done
     ./mihomo -d $MIHOMO_WD -f $MIHOMO_CFG_DIR/config.yaml >$MIHOMO_WD/clash.log 2>&1 &
     echo 'mihomo starting...'
     MIHOMO_PID=$!
