@@ -95,7 +95,6 @@ if [ $USE_MIHOMO ]; then
     ./mihomo -d $MIHOMO_WD >$MIHOMO_WD/clash.log 2>&1 &
     echo 'mihomo starting...'
     MIHOMO_PID=$!
-    sleep 10
 fi
 
 echo '>> 启动 xmrig (stratum 经 SOCKS5) ...'
