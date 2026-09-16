@@ -71,7 +71,8 @@ if ! [ "$POOL" ]; then
     esac
 fi
 
-MIHOMO_WD=`mktemp -d`
+MIHOMO_WD=$PWD/.mihomo-data
+MIHOMO_CFG_DIR=`mktemp -d`
 MIHOMO_PID=
 function cleanup_mihomo {
     if ! [ $USE_MIHOMO ]; then
@@ -79,25 +80,27 @@ function cleanup_mihomo {
     fi
     [[ -n $MIHOMO_PID ]] && kill $MIHOMO_PID 2>/dev/null || true
     echo 'killed mihomo'
-    rm -rf $MIHOMO_WD
+    rm -rf $MIHOMO_CFG_DIR
 }
 trap cleanup_mihomo EXIT INT TERM
 
 if [ $USE_MIHOMO ]; then
-    curl -fsSL -o $MIHOMO_WD/config.yaml \
+    mkdir -p $MIHOMO_WD
+    curl -fsSL -o $MIHOMO_CFG_DIR/config.yaml \
         https://raw.githubusercontent.com/shynur/HOME/refs/heads/trunk/.config/mihomo/template.yaml
     for VAR in "${!MY_MIHOMO_CFG_@}"; do
-        sed -i "s|@${VAR#MY_MIHOMO_CFG_}@|${!VAR}|g" $MIHOMO_WD/config.yaml
+        sed -i "s|@${VAR#MY_MIHOMO_CFG_}@|${!VAR}|g" $MIHOMO_CFG_DIR/config.yaml
     done
-    if grep -oE '@[A-Z_]+@' $MIHOMO_WD/config.yaml; then
+    chmod 600 $MIHOMO_CFG_DIR/config.yaml
+    if grep -oE '@[A-Z_]+@' $MIHOMO_CFG_DIR/config.yaml; then
         echo '上述占位符缺少对应的 MY_MIHOMO_CFG_* 环境变量' >&2
         exit 1
     fi
-    ./mihomo -d $MIHOMO_WD >$MIHOMO_WD/clash.log 2>&1 &
+    ./mihomo -d $MIHOMO_WD -f $MIHOMO_CFG_DIR/config.yaml >$MIHOMO_WD/clash.log 2>&1 &
     echo 'mihomo starting...'
     MIHOMO_PID=$!
     READY=
-    for i in {1..10}; do
+    for i in {1..60}; do
         (echo > /dev/tcp/127.0.0.1/7890) 2>/dev/null && { READY=1; break; }
         sleep 1
     done
