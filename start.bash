@@ -77,6 +77,7 @@ function cleanup_mihomo {
         return
     fi
     [[ -n $MIHOMO_PID ]] && kill $MIHOMO_PID 2>/dev/null || true
+    echo 'killed mihomo'
     rm -rf $MIHOMO_WD
 }
 trap cleanup_mihomo EXIT INT TERM
@@ -92,6 +93,7 @@ if [ $USE_MIHOMO ]; then
         exit 1
     fi
     ./mihomo -d $MIHOMO_WD >$MIHOMO_WD/clash.log 2>&1 &
+    echo 'mihomo starting...'
     MIHOMO_PID=$!
 fi
 
