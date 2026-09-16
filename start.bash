@@ -97,9 +97,9 @@ if [ $USE_MIHOMO ]; then
     echo 'mihomo starting...'
     MIHOMO_PID=$!
     READY=
-    for i in {1..50}; do
+    for i in {1..10}; do
         (echo > /dev/tcp/127.0.0.1/7890) 2>/dev/null && { READY=1; break; }
-        sleep 0.2
+        sleep 1
     done
     if ! [ "$READY" ]; then
         echo 'mihomo 端口 7890 未就绪, 日志如下:' >&2
