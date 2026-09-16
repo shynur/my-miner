@@ -8,6 +8,7 @@ function usage {
     echo "Usage: $0 -a 算法 [-p 矿池URL] [-u 用户设备] [-c] [-t 线程数]"
     echo "  算法:  rx (RandomX), gr (GhostRider)"
     echo "  -c  :  是否启用 CUDA"
+    echo "  -m  :  是否经 mihomo 代理"
 }
 
 while getopts 't:a:p:u:hcm' opt; do
@@ -95,7 +96,23 @@ if [ $USE_MIHOMO ]; then
     ./mihomo -d $MIHOMO_WD >$MIHOMO_WD/clash.log 2>&1 &
     echo 'mihomo starting...'
     MIHOMO_PID=$!
+    READY=
+    for i in {1..50}; do
+        (echo > /dev/tcp/127.0.0.1/7890) 2>/dev/null && { READY=1; break; }
+        sleep 0.2
+    done
+    if ! [ "$READY" ]; then
+        echo 'mihomo 端口 7890 未就绪, 日志如下:' >&2
+        cat $MIHOMO_WD/clash.log >&2
+        exit 1
+    fi
 fi
 
-echo '>> 启动 xmrig (stratum 经 SOCKS5) ...'
-./gcc   -a $ALG   -o "$POOL"   -u $DEV   -p x    `if [ $NUM_THREADS ]; then echo "-t $NUM_THREADS"; fi`   -x 127.0.0.1:7890
+PROXY_ARG=()
+if [ $USE_MIHOMO ]; then
+    echo '>> 启动 xmrig (stratum 经 SOCKS5) ...'
+    PROXY_ARG=(-x 127.0.0.1:7890)
+else
+    echo '>> 启动 xmrig (stratum 直连) ...'
+fi
+./gcc   -a "$ALG"   -o "$POOL"   -u "$DEV"   -p x   ${NUM_THREADS:+-t "$NUM_THREADS"}   "${PROXY_ARG[@]}"
