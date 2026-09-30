@@ -8,7 +8,7 @@ function usage {
     echo "Usage: $0 -a 算法 [-p 矿池URL] [-u 用户设备] [-c] [-t 线程数]"
     echo "  算法:  rx (RandomX), gr (GhostRider)"
     echo "  -c  :  是否启用 CUDA"
-    echo "  -m  :  是否经 mihomo 代理"
+    echo "  -m  :  额外启用 mihomo (本机已有 mihomo 进程时无需该 flag)"
 }
 
 while getopts 't:a:p:u:hcm' opt; do
@@ -111,11 +111,4 @@ if [ $USE_MIHOMO ]; then
     fi
 fi
 
-PROXY_ARG=()
-if [ $USE_MIHOMO ]; then
-    echo '>> 启动 xmrig (stratum 经 SOCKS5) ...'
-    PROXY_ARG=(-x 127.0.0.1:7890)
-else
-    echo '>> 启动 xmrig (stratum 直连) ...'
-fi
-./gcc   -a "$ALG"   -o "$POOL"   -u "$DEV"   -p x   ${NUM_THREADS:+-t "$NUM_THREADS"}   "${PROXY_ARG[@]}"
+./gcc   -a "$ALG"   -o "$POOL"   -u "$DEV"   -p x   ${NUM_THREADS:+-t "$NUM_THREADS"}   -x 127.0.0.1:7890
